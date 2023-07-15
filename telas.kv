@@ -1,0 +1,120 @@
+gerenciador_Tela:
+
+    TelaInicial:
+    CriarLista:
+    VizualizarLista:
+
+
+<VizualizarLista>
+    name:"vizualizar_lista"
+
+    MDIconButton:
+        icon: "arrow-left-bold"
+        pos_hint: {"center_x": .1, "center_y": .95}
+        on_release:
+            app.root.current = "tela_inicial"
+            root.manager.transition.direction="right"
+
+
+    MDLabel:
+        text:'Selecione uma lista já existente'
+        halign:'center'
+        pos_hint: {'center_y': .95}
+
+    MDDropDownItem:
+        id: drop_item
+        pos_hint: {'center_x': .5, 'center_y': .9}
+        text: 'Listas cadastradas'
+        on_release: print("Press item")
+
+
+
+
+
+
+<CriarLista>
+    name:"criar_lista"
+
+    MDIconButton:
+        icon: "arrow-left-bold"
+        pos_hint: {"center_x": .1, "center_y": .95}
+        on_release:
+            app.root.current = "tela_inicial"
+            root.manager.transition.direction="right"
+
+    MDLabel:
+        text:'Criar nova lista'
+        halign:'center'
+        pos_hint:{'center_y':0.95}
+
+    MDTextField:
+        hint_text:"Nome da lista"
+        pos_hint: {'center_x': .5,'center_y': .8}
+        size_hint_x:0.8
+
+    MDTextField:
+        id: text_field_Item
+        hint_text:'Adicione um item'
+        pos_hint: {'center_x': .5,'center_y': .65}
+        size_hint_x:0.5
+        mode:'rectangle'
+    MDTextField:
+        id: text_field_Quantidade
+        hint_text:'Quantidade'
+        pos_hint: {'center_x': .5,'center_y': .475}
+        size_hint_x:0.5
+        mode:'rectangle'
+
+    MDRaisedButton:
+        text: "Adicionar"
+        size_hint_x:0.2
+        pos_hint: {'center_x': .5,'center_y': .3}
+        on_release: root.btn_AdicionarItens()
+
+    MDRaisedButton:
+        text:"Criar Lista"
+        pos_hint: {'center_x': .5,'center_y': .15}
+
+    MDLabel:
+        text:'Feito por @jaolvz'
+        halign:'center'
+        theme_text_color:'Custom'
+        text_color:'grey'
+        pos_hint:{'center_y':0.05}
+
+
+
+
+
+
+<TelaInicial>
+    name: 'tela_inicial'
+
+    MDLabel:
+        text: 'Listas do Feja'
+        halign:"center"
+        pos_hint: {'center_y': .85}
+
+
+    MDRaisedButton:
+        text :'Vizualizar listas'
+        size_hint_x:0.2
+        pos_hint: {'center_x': .5,'center_y': .6}
+        on_release: app.root.current = "vizualizar_lista"
+    MDRaisedButton:
+        text : 'Criar nova lista'
+        size_hint_x:0.2
+        pos_hint: {'center_x': .5,'center_y': .45}
+        on_release: app.root.current = "criar_lista"
+
+    MDRaisedButton:
+        text : 'Adicionar novo item em lista já criada'
+        size_hint_x:0.2
+        pos_hint: {'center_x': .5,'center_y': .3}
+
+    MDLabel:
+        text:'Feito por @jaolvz'
+        halign:'center'
+        theme_text_color:'Custom'
+        text_color:'grey'
+        pos_hint:{'center_y':0.1}
