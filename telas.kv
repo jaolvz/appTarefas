@@ -1,8 +1,18 @@
 gerenciador_Tela:
-
+    TelaCarregamento:
     TelaInicial:
     CriarLista:
     VizualizarLista:
+
+
+
+<TelaCarregamento>
+    name:"tela_carregamento"
+    Image:
+        source:"imagens/logo_carregamento.png"
+        pos_hint: {"center_x": .5, "center_y": .5}
+        size_hint: .5,.5
+
 
 
 <VizualizarLista>
@@ -22,10 +32,10 @@ gerenciador_Tela:
         pos_hint: {'center_y': .95}
 
     MDDropDownItem:
-        id: drop_item
+        id:dropdown_tabelas
         pos_hint: {'center_x': .5, 'center_y': .9}
         text: 'Listas cadastradas'
-        on_release: print("Press item")
+        on_release: root.menu.open()
 
 
 
@@ -48,6 +58,7 @@ gerenciador_Tela:
         pos_hint:{'center_y':0.95}
 
     MDTextField:
+        id: nome_lista
         hint_text:"Nome da lista"
         pos_hint: {'center_x': .5,'center_y': .8}
         size_hint_x:0.8
@@ -58,6 +69,7 @@ gerenciador_Tela:
         pos_hint: {'center_x': .5,'center_y': .65}
         size_hint_x:0.5
         mode:'rectangle'
+
     MDTextField:
         id: text_field_Quantidade
         hint_text:'Quantidade'
@@ -74,6 +86,7 @@ gerenciador_Tela:
     MDRaisedButton:
         text:"Criar Lista"
         pos_hint: {'center_x': .5,'center_y': .15}
+        on_release: root.criar_tabela()
 
     MDLabel:
         text:'Feito por @jaolvz'
@@ -97,10 +110,11 @@ gerenciador_Tela:
 
 
     MDRaisedButton:
-        text :'Vizualizar listas'
+        text :'Listas Criadas'
         size_hint_x:0.2
         pos_hint: {'center_x': .5,'center_y': .6}
         on_release: app.root.current = "vizualizar_lista"
+
     MDRaisedButton:
         text : 'Criar nova lista'
         size_hint_x:0.2
@@ -111,6 +125,7 @@ gerenciador_Tela:
         text : 'Adicionar novo item em lista já criada'
         size_hint_x:0.2
         pos_hint: {'center_x': .5,'center_y': .3}
+
 
     MDLabel:
         text:'Feito por @jaolvz'
