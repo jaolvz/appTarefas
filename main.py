@@ -2,7 +2,10 @@ from kivymd.app import MDApp
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.lang import Builder
 from kivy.core.window import Window
-from kivymd.uix.menu import MDDropdownMenu
+from kivymd.uix.list import OneLineRightIconListItem
+from kivymd.uix.button import MDIconButton
+from kivymd.uix.datatables import MDDataTable
+from kivy.metrics import dp
 from kivy.clock import Clock
 import sqlite3
 import os
@@ -10,58 +13,71 @@ import os
 
 
 class VizualizarLista(Screen):
-    def on_pre_enter(self):
+    def on_enter(self):
+        tabelas = self.buscar_todasListas()
+        for tabela in tabelas:
+            self.item = OneLineRightIconListItem(text=f"{tabela}")
+            btn_Direito = MDIconButton(icon="eye-outline", pos_hint={"center_x": .9, "center_y": .5})
+            btn_Direito.bind(on_release=lambda x, tabela=tabela: self.abrirLista(tabela))
+            self.item.add_widget(btn_Direito)
+            self.ids.container.add_widget(self.item)
+    def on_leave(self):
+        container = self.ids.container
+        for child in container.children[:]:
+            container.remove_widget(child)
+
+    def abrirLista(self,nomeLista):
+        telaLista = self.manager.get_screen('lista')
+        telaLista.update_label(nomeLista)
+        self.manager.current = 'lista'
+
+
+    def buscar_todasListas(self):
         conn = sqlite3.connect('appListas.db')
         cursor = conn.cursor()
         cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'")
         consulta_tabelas = cursor.fetchall()
-
+        conn.close()
         tabelas = []
         for tupla in consulta_tabelas:
             elemento = tupla[0]
             tabelas.append(elemento)
-        menu_items = [
-            {
-                "text": f"{i}",
-            } for i in tabelas
-        ]
-
-        self.menu = MDDropdownMenu(
-            caller=self.ids.dropdown_tabelas,
-            items=menu_items,
-            position="center",
-        )
-        self.menu.bind()
-        conn.close()
-
-    def pegar_todaslinhas(self):
-        # Conectar ao banco de dados
-        conn = sqlite3.connect('testeApp.db')
-
-        # Criar um cursor para executar comandos SQL
-        cursor = conn.cursor()
-
-        # Executar uma consulta SELECT para recuperar todos os registros da tabela
-        cursor.execute("SELECT * FROM ola")
-
-        # Recuperar os resultados da consulta
-        rows = cursor.fetchall()
-
-        # Exibir os resultados
-        for row in rows:
-            print(row)
-
-        # Fechar a conexão
-        conn.close()
+        return tabelas
 
 class TelaCarregamento(Screen):
     def on_enter(self):
-        Clock.schedule_once(self.change_screen, 3)
+        Clock.schedule_once(self.change_screen,3)
 
-    def change_screen(self, dt):
+    def change_screen(self,e):
         self.manager.current = "tela_inicial"
 
-    pass
+
+class Lista(Screen):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+
+    def update_label(self, name):
+        self.ids.nomeLista.text = name
+        self.dados_tabela(name)
+
+    def dados_tabela(self,nome_tabela):
+        conn = sqlite3.connect('appListas.db')
+        cursor = conn.cursor()
+        cursor.execute(f"SELECT * FROM {nome_tabela}")
+        consultaLista = cursor.fetchall()
+        conn.close()
+        consultaTratada = [(item[1],item[2]) for item in consultaLista]
+        self.tabelaLista = MDDataTable(
+            size_hint=(0.9, 0.6),
+            pos_hint=( {"center_x": .5, "center_y": .5}),
+            column_data=[
+                ("Item",dp(25)),
+                ("Quantidade",dp(30))
+            ]
+        )
+        self.tabelaLista.row_data=consultaTratada
+        self.add_widget(self.tabelaLista)
 
 class TelaInicial(Screen):
    pass
@@ -104,18 +120,11 @@ class CriarLista(Screen):
     def criar_tabela(self):
         texField_nomeTabela = self.ids.nome_lista
         nome_Tabela = texField_nomeTabela.text
-
         conn = sqlite3.connect('appListas.db')
         cursor = conn.cursor()
-
-        # Criar tabelas ou executar outras operações necessárias
         cursor.execute(f'''CREATE TABLE {nome_Tabela} (id INTEGER PRIMARY KEY AUTOINCREMENT,name_item TEXT NOT NULL,quantidade_item INTEGER NOT NULL)''')
-
         for item , quantidade in  zip(self.lista_itens, self.lista_quantidade):
             cursor.execute(f"INSERT INTO {nome_Tabela} (name_item,quantidade_item) VALUES (?, ?)", (item,quantidade))
-
-
-        # Salvar as alterações e fechar a conexão
         conn.commit()
         conn.close()
         print("Tabela criada com sucesso")
@@ -127,26 +136,26 @@ class gerenciador_Tela(ScreenManager):
     pass
 
 
-class appCompras(MDApp):
+class appListas(MDApp):
     def create_database(self):
-        # Verificar se o arquivo do banco de dados já existe
         if not os.path.exists('appListas.db'):
-            # Conectar ao banco de dados
             conn = sqlite3.connect('appListas.db')
             conn.commit()
             conn.close()
-
             print("Banco de dados criado com sucesso!")
         else:
             print("Banco de dados já existe.")
 
     def build(self):
         self.create_database()
+        self.icon ='imagens/logo_carregamento.png'
+        self.title = 'Listas'
         Window.size = (360, 640)
+
         return Builder.load_file("telas.kv")
 
 
 
 
 
-appCompras().run()
+appListas().run()
