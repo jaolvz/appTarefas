@@ -5,6 +5,8 @@ from kivy.core.window import Window
 from kivymd.uix.list import OneLineRightIconListItem
 from kivymd.uix.button import MDIconButton
 from kivymd.uix.datatables import MDDataTable
+from kivymd.uix.snackbar import Snackbar
+from kivymd.uix.label import  MDLabel
 from kivy.metrics import dp
 from kivy.clock import Clock
 import sqlite3
@@ -70,6 +72,7 @@ class Lista(Screen):
         consultaTratada = [(item[1],item[2]) for item in consultaLista]
         self.tabelaLista = MDDataTable(
             size_hint=(0.9, 0.6),
+            use_pagination=True,
             pos_hint=( {"center_x": .5, "center_y": .5}),
             column_data=[
                 ("Item",dp(25)),
@@ -111,11 +114,12 @@ class CriarLista(Screen):
 
         self.lista_itens.append(item)
         self.lista_quantidade.append(quantidade)
+        text_fieldQuantidade.text=''
+        text_fieldItem.text=f"{item} foi adicionado"
 
         # Exibir o vetor
         print(self.lista_itens)
         print(self.lista_quantidade)
-
 
     def criar_tabela(self):
         texField_nomeTabela = self.ids.nome_lista
@@ -127,11 +131,8 @@ class CriarLista(Screen):
             cursor.execute(f"INSERT INTO {nome_Tabela} (name_item,quantidade_item) VALUES (?, ?)", (item,quantidade))
         conn.commit()
         conn.close()
-        print("Tabela criada com sucesso")
-
-
-
-
+        aviso = Snackbar(text="Lista criada com sucesso.")
+        aviso.open()
 class gerenciador_Tela(ScreenManager):
     pass
 
