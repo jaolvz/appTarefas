@@ -6,14 +6,10 @@ from kivymd.uix.list import OneLineRightIconListItem
 from kivymd.uix.button import MDIconButton
 from kivymd.uix.datatables import MDDataTable
 from kivymd.uix.snackbar import Snackbar
-from kivymd.uix.label import  MDLabel
 from kivy.metrics import dp
 from kivy.clock import Clock
 import sqlite3
 import os
-
-
-
 class VizualizarLista(Screen):
     def on_enter(self):
         tabelas = self.buscar_todasListas()
@@ -23,14 +19,14 @@ class VizualizarLista(Screen):
             btn_Direito.bind(on_release=lambda x, tabela=tabela: self.abrirLista(tabela))
             self.item.add_widget(btn_Direito)
             self.ids.container.add_widget(self.item)
-    def on_leave(self):
+    def on_leave  (self) :
         container = self.ids.container
         for child in container.children[:]:
             container.remove_widget(child)
 
     def abrirLista(self,nomeLista):
         telaLista = self.manager.get_screen('lista')
-        telaLista.update_label(nomeLista)
+        telaLista.iniciando_Screen(nomeLista)
         self.manager.current = 'lista'
 
 
@@ -41,25 +37,20 @@ class VizualizarLista(Screen):
         consulta_tabelas = cursor.fetchall()
         conn.close()
         tabelas = []
+        #tratamento da consulta
         for tupla in consulta_tabelas:
             elemento = tupla[0]
             tabelas.append(elemento)
         return tabelas
-
 class TelaCarregamento(Screen):
     def on_enter(self):
         Clock.schedule_once(self.change_screen,3)
 
     def change_screen(self,e):
         self.manager.current = "tela_inicial"
-
-
 class Lista(Screen):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
 
-
-    def update_label(self, name):
+    def iniciando_Screen(self, name):
         self.ids.nomeLista.text = name
         self.dados_tabela(name)
 
@@ -81,12 +72,10 @@ class Lista(Screen):
         )
         self.tabelaLista.row_data=consultaTratada
         self.add_widget(self.tabelaLista)
-
 class TelaInicial(Screen):
    pass
-
-
 class CriarLista(Screen):
+
     lista_itens = []
     lista_quantidade = []
 
@@ -109,7 +98,7 @@ class CriarLista(Screen):
 
         for item_lista in self.lista_itens:
             if item == item_lista:
-                text_fieldItem.text = "Você já adicionou esse item."
+                text_fieldItem.text = "Item já adicionado."
                 return 0
 
         self.lista_itens.append(item)
@@ -117,20 +106,14 @@ class CriarLista(Screen):
         text_fieldQuantidade.text=''
         text_fieldItem.text=f"{item} foi adicionado"
 
-        # Exibir o vetor
-        print(self.lista_itens)
-        print(self.lista_quantidade)
-
-
     def criar_tabela(self):
         text_field_nomeTabela = self.ids.nome_lista
         nome_Tabela = text_field_nomeTabela.text
-
         if self.verificando_Existencia_Tabela(nome_Tabela) is False:
             conn = sqlite3.connect('appListas.db')
             cursor = conn.cursor()
             cursor.execute(f'''CREATE TABLE {nome_Tabela} (id INTEGER PRIMARY KEY AUTOINCREMENT,name_item TEXT NOT NULL,quantidade_item INTEGER NOT NULL)''')
-            for item , quantidade in zip(self.lista_itens, self.lista_quantidade):
+            for item , quantidade in zip(self.lista_itens, self.lista_quantidade): #esse zip faz as 2 listas estejam no mesmo indice a cada rodagem do for
                 cursor.execute(f"INSERT INTO {nome_Tabela} (name_item,quantidade_item) VALUES (?, ?)", (item,quantidade))
             conn.commit()
             conn.close()
@@ -155,28 +138,19 @@ class CriarLista(Screen):
         return resultado is not None
 class gerenciador_Tela(ScreenManager):
     pass
-
-
 class appListas(MDApp):
-    def create_database(self):
+    def criar_BancodeDados(self):
         if not os.path.exists('appListas.db'):
             conn = sqlite3.connect('appListas.db')
             conn.commit()
             conn.close()
-            print("Banco de dados criado com sucesso!")
-        else:
-            print("Banco de dados já existe.")
 
     def build(self):
-        self.create_database()
-        self.icon ='imagens/logo_carregamento.png'
+        self.criar_BancodeDados()
+        self.icon = 'imagens/logo_carregamento.png'
         self.title = 'Listas'
         Window.size = (360, 640)
 
         return Builder.load_file("telas.kv")
-
-
-
-
 
 appListas().run()
