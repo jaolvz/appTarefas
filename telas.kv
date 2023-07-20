@@ -66,7 +66,7 @@ gerenciador_Tela:
             root.manager.transition.direction="right"
 
     MDLabel:
-        text:'Selecione uma lista já existente'
+        text:'Listas Existentes'
         halign:'center'
         pos_hint: {'center_y': .95}
 
@@ -74,13 +74,13 @@ gerenciador_Tela:
 
         size_hint:.8,.8
         pos_hint: {"center_x": .5, "center_y": .5}
+        canvas.before:
+            Color:
+                rgba: 0, 0, 0, 1  # Cor da borda (preto)
+            Line:
+                width:  2 # Espessura da borda
+                rectangle: self.x, self.y, self.width, self.height
         MDList:
-            canvas.before:
-                Color:
-                    rgba: 0, 0, 0, 1  # Cor da borda (preto)
-                Line:
-                    width:  2 # Espessura da borda
-                    rectangle: self.x, self.y, self.width, self.height
             id: container
     MDLabel:
         text:'Feito por @jaolvz'
@@ -112,6 +112,7 @@ gerenciador_Tela:
     MDTextField:
         id: nome_lista
         hint_text:"Nome da lista"
+        helper_text: "O nome deve começar com uma letra (A-Z, a-z). "
         pos_hint: {'center_x': .5,'center_y': .8}
         size_hint_x:0.8
 
@@ -173,14 +174,18 @@ gerenciador_Tela:
         size_hint_x:0.2
         pos_hint: {'center_x': .5,'center_y': .6}
         md_bg_color: 0,0,0,1
-        on_release: app.root.current = "vizualizar_lista"
+        on_release:
+            root.manager.transition.direction="left"
+            app.root.current = "vizualizar_lista"
 
     MDRaisedButton:
         text : 'Criar nova lista'
         size_hint_x:0.2
         md_bg_color: 0,0,0,1
         pos_hint: {'center_x': .5,'center_y': .4}
-        on_release: app.root.current = "criar_lista"
+        on_release:
+            root.manager.transition.direction="left"
+            app.root.current = "criar_lista"
 
 
 

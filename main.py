@@ -121,18 +121,38 @@ class CriarLista(Screen):
         print(self.lista_itens)
         print(self.lista_quantidade)
 
+
     def criar_tabela(self):
-        texField_nomeTabela = self.ids.nome_lista
-        nome_Tabela = texField_nomeTabela.text
+        text_field_nomeTabela = self.ids.nome_lista
+        nome_Tabela = text_field_nomeTabela.text
+
+        if self.verificando_Existencia_Tabela(nome_Tabela) is False:
+            conn = sqlite3.connect('appListas.db')
+            cursor = conn.cursor()
+            cursor.execute(f'''CREATE TABLE {nome_Tabela} (id INTEGER PRIMARY KEY AUTOINCREMENT,name_item TEXT NOT NULL,quantidade_item INTEGER NOT NULL)''')
+            for item , quantidade in zip(self.lista_itens, self.lista_quantidade):
+                cursor.execute(f"INSERT INTO {nome_Tabela} (name_item,quantidade_item) VALUES (?, ?)", (item,quantidade))
+            conn.commit()
+            conn.close()
+            text_fieldItem = self.ids.text_field_Item
+            text_fieldQuantidade = self.ids.text_field_Quantidade
+            text_fieldItem.text=''
+            text_fieldQuantidade.text = ''
+            text_field_nomeTabela.text=''
+            aviso = Snackbar(text=f"A lista {nome_Tabela} criada com sucesso.")
+            aviso.open()
+        else:
+            aviso = Snackbar(text=f"A lista {nome_Tabela} já existe.")
+            aviso.open()
+
+    def verificando_Existencia_Tabela(self,table_name):
         conn = sqlite3.connect('appListas.db')
         cursor = conn.cursor()
-        cursor.execute(f'''CREATE TABLE {nome_Tabela} (id INTEGER PRIMARY KEY AUTOINCREMENT,name_item TEXT NOT NULL,quantidade_item INTEGER NOT NULL)''')
-        for item , quantidade in  zip(self.lista_itens, self.lista_quantidade):
-            cursor.execute(f"INSERT INTO {nome_Tabela} (name_item,quantidade_item) VALUES (?, ?)", (item,quantidade))
-        conn.commit()
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name=?", (table_name,))
+        resultado = cursor.fetchone()
+        cursor.close()
         conn.close()
-        aviso = Snackbar(text="Lista criada com sucesso.")
-        aviso.open()
+        return resultado is not None
 class gerenciador_Tela(ScreenManager):
     pass
 
